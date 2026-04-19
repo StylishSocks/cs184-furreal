@@ -119,6 +119,9 @@ public:
                 vector<Vector3D> external_accelerations,
                 vector<CollisionObject *> *collision_objects);
 
+  // Keep roots attached to moved proxies even while simulation is paused.
+  void syncAttachmentTransforms(vector<CollisionObject *> *collision_objects);
+
   // Render all visible strands using active render strategy.
   void render(GLShader &shader, HairParameters *params,
               const Vector3D &camera_pos);

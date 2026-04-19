@@ -232,6 +232,10 @@ bool App::isAlive() { return is_alive; }
 void App::drawContents() {
   glEnable(GL_DEPTH_TEST);
 
+  if (hair_system) {
+    hair_system->syncAttachmentTransforms(collision_objects);
+  }
+
   if (!is_paused && hair_system) {
     vector<CGL::Vector3D> external_accelerations = {gravity};
 
@@ -289,11 +293,11 @@ void App::drawContents() {
     Vector3D cam_pos = camera.position();
     shader.setUniform("u_cam_pos", Vector3f(cam_pos.x, cam_pos.y, cam_pos.z), false);
     shader.setUniform("u_light_pos", Vector3f(0.5f, 2.0f, 2.0f), false);
-    shader.setUniform("u_light_intensity", Vector3f(3.0f, 3.0f, 3.0f), false);
+    shader.setUniform("u_light_intensity", Vector3f(1.6f, 1.6f, 1.6f), false);
     shader.setUniform("u_root_color", Vector3f(color.r(), color.g(), color.b()), false);
     shader.setUniform("u_tip_color",
-                      Vector3f(color.r() * 0.72f, color.g() * 0.72f,
-                               color.b() * 0.72f),
+                      Vector3f(color.r() * 0.55f, color.g() * 0.55f,
+                               color.b() * 0.55f),
                       false);
     shader.setUniform("u_alpha", hp ? hp->fur_render.alpha : 0.90f, false);
     shader.setUniform("u_primary_spec_power",
@@ -458,6 +462,7 @@ void App::mouseRightDragged(double x, double y) {
 
 bool App::keyCallbackEvent(int key, int scancode, int action, int mods) {
   ctrl_down = (bool)(mods & GLFW_MOD_CONTROL);
+  bool moved_object = false;
 
   if (action == GLFW_PRESS) {
     switch (key) {
@@ -495,34 +500,44 @@ bool App::keyCallbackEvent(int key, int scancode, int action, int mods) {
     case GLFW_KEY_UP:
       if (selected_object_idx >= 0 && selected_object_idx < (int)collision_objects->size()) {
         (*collision_objects)[selected_object_idx]->translate(CGL::Vector3D(0, 0, -move_speed));
+        moved_object = true;
       }
       break;
     case GLFW_KEY_DOWN:
       if (selected_object_idx >= 0 && selected_object_idx < (int)collision_objects->size()) {
         (*collision_objects)[selected_object_idx]->translate(CGL::Vector3D(0, 0, move_speed));
+        moved_object = true;
       }
       break;
     case GLFW_KEY_LEFT:
       if (selected_object_idx >= 0 && selected_object_idx < (int)collision_objects->size()) {
         (*collision_objects)[selected_object_idx]->translate(CGL::Vector3D(-move_speed, 0, 0));
+        moved_object = true;
       }
       break;
     case GLFW_KEY_RIGHT:
       if (selected_object_idx >= 0 && selected_object_idx < (int)collision_objects->size()) {
         (*collision_objects)[selected_object_idx]->translate(CGL::Vector3D(move_speed, 0, 0));
+        moved_object = true;
       }
       break;
     case GLFW_KEY_LEFT_BRACKET:
       if (selected_object_idx >= 0 && selected_object_idx < (int)collision_objects->size()) {
         (*collision_objects)[selected_object_idx]->translate(CGL::Vector3D(0, -move_speed, 0));
+        moved_object = true;
       }
       break;
     case GLFW_KEY_RIGHT_BRACKET:
       if (selected_object_idx >= 0 && selected_object_idx < (int)collision_objects->size()) {
         (*collision_objects)[selected_object_idx]->translate(CGL::Vector3D(0, move_speed, 0));
+        moved_object = true;
       }
       break;
     }
+  }
+
+  if (moved_object && hair_system) {
+    hair_system->syncAttachmentTransforms(collision_objects);
   }
 
   return true;

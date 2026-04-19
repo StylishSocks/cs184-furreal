@@ -12,11 +12,10 @@ struct WindParams {
   Vector3D direction = Vector3D(1, 0, 0);
 };
 
-// Compute wind force on a particle given its surface normal.
-// Uses an aerodynamic model where force is proportional to the normal
-// component of wind velocity, with spatially and temporally varying gusts.
+// Compute wind force on a particle using a local strand/surface axis.
+// Uses a simple aerodynamic model with spatially and temporally varying gusts.
 //
-// normal: surface normal at the particle (or strand tangent for hair)
+// normal: local axis at the particle (surface normal or strand tangent)
 // mass: particle mass
 // sim_time: current simulation time (for temporal variation)
 Vector3D compute_wind_force(const Vector3D &position, const Vector3D &normal,

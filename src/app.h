@@ -53,7 +53,7 @@ private:
   int frames_per_sec = 90;
   int simulation_steps = 30;
   CGL::Vector3D gravity = CGL::Vector3D(0, -9.8, 0);
-  nanogui::Color color = nanogui::Color(1.0f, 1.0f, 1.0f, 1.0f);
+  nanogui::Color color = nanogui::Color(0.74f, 0.64f, 0.52f, 1.0f);
 
   // Simulation objects
   HairSystem *hair_system = nullptr;

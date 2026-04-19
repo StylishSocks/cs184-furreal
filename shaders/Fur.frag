@@ -33,13 +33,16 @@ void main() {
   float anisotropic = (spec1 + spec2) * ndotl;
 
   vec3 base = mix(u_root_color, u_tip_color, v_uv.y);
-  base *= (0.70 + 0.30 * ndotl);
+  base *= (0.35 + 0.65 * ndotl);
   base *= (1.0 + v_tangent.w * 0.25);
 
   // Slightly fade thin outer ribbon edges to avoid hard strips.
   float edge = abs(v_uv.x * 2.0 - 1.0);
   float alpha = u_alpha * (1.0 - 0.35 * edge);
 
-  vec3 lit = base + anisotropic * u_light_intensity * 0.05;
+  vec3 spec = vec3(1.0, 0.98, 0.95) * anisotropic * u_light_intensity * 0.018;
+  vec3 lit = base + spec;
+  // Prevent bright wash-out when users pick very light fur colors.
+  lit = lit / (vec3(1.0) + lit);
   out_color = vec4(lit, clamp(alpha, 0.0, 1.0));
 }

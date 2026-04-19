@@ -30,6 +30,26 @@ static inline int rand_int(std::mt19937 &rng, int lo, int hi) {
   return dist(rng);
 }
 
+static inline Vector3D jitter_direction(std::mt19937 &rng,
+                                        const Vector3D &base_dir,
+                                        double max_angle_degrees) {
+  const Vector3D n = safe_unit(base_dir, Vector3D(0, 1, 0));
+  const double max_angle = std::max(0.0, max_angle_degrees) * M_PI / 180.0;
+  if (max_angle < 1e-8) return n;
+
+  const Vector3D helper = (fabs(n.y) < 0.95) ? Vector3D(0, 1, 0) : Vector3D(1, 0, 0);
+  const Vector3D t = safe_unit(cross(n, helper), Vector3D(1, 0, 0));
+  const Vector3D b = safe_unit(cross(n, t), Vector3D(0, 0, 1));
+
+  const double phi = rand01(rng) * 2.0 * M_PI;
+  const double cos_max = cos(max_angle);
+  const double cos_theta = 1.0 - rand01(rng) * (1.0 - cos_max);
+  const double sin_theta = sqrt(std::max(0.0, 1.0 - cos_theta * cos_theta));
+
+  const Vector3D radial = t * cos(phi) + b * sin(phi);
+  return safe_unit(n * cos_theta + radial * sin_theta, n);
+}
+
 } // namespace
 
 const char *simStrategyName(HairSimStrategy strategy) {
@@ -345,8 +365,13 @@ void HairSystem::buildGuidesAndFollowers(HairParameters *params,
     guide_width_scales[g] = width_scale;
     guide_color_variations[g] = color_shift;
 
+    // Break perfect symmetry so top-face strands on boxes can naturally droop.
+    const double max_tilt_deg =
+        (a.proxy_type == HairAttachmentType::BOX) ? 26.0 : 14.0;
+    const Vector3D init_dir = jitter_direction(rng, a.world_normal, max_tilt_deg);
+
     guide_strands[g].init(a.world_position + a.world_normal * 1e-4,
-                          a.world_normal,
+                          init_dir,
                           params->strand_length * length_scale,
                           params->particles_per_strand,
                           params->mass_per_particle);
@@ -433,8 +458,14 @@ void HairSystem::simulateGuidesDFTL(double delta_t, HairParameters *params,
 
       if (params->wind.enable) {
         Vector3D tangent(0, 1, 0);
-        if (i > 0) {
+        if (i > 0 && i + 1 < n) {
+          tangent = safe_unit(strand.particles[i + 1].position - strand.particles[i - 1].position,
+                              Vector3D(0, 1, 0));
+        } else if (i > 0) {
           tangent = safe_unit(strand.particles[i].position - strand.particles[i - 1].position,
+                              Vector3D(0, 1, 0));
+        } else if (i + 1 < n) {
+          tangent = safe_unit(strand.particles[i + 1].position - strand.particles[i].position,
                               Vector3D(0, 1, 0));
         }
         force += compute_wind_force(pm.position, tangent, pm.mass, params->wind, sim_time);
@@ -489,7 +520,9 @@ void HairSystem::simulateGuidesReference(double delta_t, HairParameters *params,
                                          const vector<Vector3D> &external_accelerations,
                                          vector<CollisionObject *> *collision_objects) {
   for (Strand &strand : guide_strands) {
-    for (PointMass &pm : strand.particles) {
+    const int n = strand.num_particles();
+    for (int i = 0; i < n; i++) {
+      PointMass &pm = strand.particles[i];
       pm.forces = Vector3D(0, 0, 0);
       if (pm.pinned) {
         pm.position = pm.start_position;
@@ -502,8 +535,18 @@ void HairSystem::simulateGuidesReference(double delta_t, HairParameters *params,
       }
 
       if (params->wind.enable) {
-        Vector3D normal(0, 1, 0);
-        pm.forces += compute_wind_force(pm.position, normal, pm.mass, params->wind, sim_time);
+        Vector3D tangent(0, 1, 0);
+        if (i > 0 && i + 1 < n) {
+          tangent = safe_unit(strand.particles[i + 1].position - strand.particles[i - 1].position,
+                              Vector3D(0, 1, 0));
+        } else if (i > 0) {
+          tangent = safe_unit(strand.particles[i].position - strand.particles[i - 1].position,
+                              Vector3D(0, 1, 0));
+        } else if (i + 1 < n) {
+          tangent = safe_unit(strand.particles[i + 1].position - strand.particles[i].position,
+                              Vector3D(0, 1, 0));
+        }
+        pm.forces += compute_wind_force(pm.position, tangent, pm.mass, params->wind, sim_time);
       }
     }
 
@@ -586,6 +629,20 @@ void HairSystem::simulate(double frames_per_sec, double simulation_steps,
 
   updateFollowersFromGuides();
   sim_time += delta_t;
+}
+
+void HairSystem::syncAttachmentTransforms(vector<CollisionObject *> *collision_objects) {
+  if (guide_strands.empty()) return;
+
+  if (collision_objects) {
+    bound_collision_objects = collision_objects;
+  } else {
+    collision_objects = bound_collision_objects;
+  }
+
+  updateAnchorWorldPositions(collision_objects);
+  updatePinnedRootsFromAnchors();
+  updateFollowersFromGuides();
 }
 
 vector<Strand *> HairSystem::getVisibleStrands() {
