@@ -1,0 +1,135 @@
+Title: FurReal: Interactive Real-Time Hair and Fur Simulation
+
+Summary: Hair and fur are visually important but difficult to simulate in real time because each strand needs to remain inextensible while also responding to motion, collision, and external forces. In this final project, we will build an interactive real-time hair and fur simulation system that supports thousands of strands, approximate hair-hair interactions, and user-controlled effects such as wind and styling. Our goal is to create a simulation that is physically plausible and visually compelling for animated characters.
+
+Team Members: 
+Roshan Parekh
+Yash Kodali
+Spencer Nelson
+Hetvi Patel
+
+Problem Description: 
+
+Realistic hair and fur are still challenging problems in computer graphics, especially in interactive settings. Unlike offline film production, where simulation can afford to take significant time, real-time applications such as games/demos require stable and visually believable motion under strict performance constraints. Hair and fur are difficult to simulate because they consist of thousands of thin strands, each of which need to resist stretching, respond to gravity, and interact with the body and neighboring hairs.
+
+Our project focuses on building a real-time physical simulation system for hair and fur attached to an animated character or model. We are interested in strand-based simulation methods that maintain inextensibility while remaining efficient enough for interactive framerates. One inspiration for our project is Müller et al.’s “Fast Simulation of Inextensible Hair and Fur,” which presents an approach for simulating thousands of strands with a single iteration per frame, along with approximate methods for hair-hair repulsion, friction, and character collision.
+
+The main challenge is balancing realism, robustness, and performance. A physically accurate simulation of every hair-hair interaction is too computationally expensive as the number of strands increases. Similar to what is currently done, we plan to use efficient approximations such as particle chains for strands, simplified collision volumes for the character, and density-grid-based approximations for hair-hair interaction. 
+
+Our general approach is to represent each hair strand as a chain of particles connected by distance constraints. We will implement a Follow-The-Leader style solver to enforce strand inextensibility efficiently, then add collision handling, external forces, and interactive controls such as brushing or wind. We also plan to support multiple visual styles, including short fur and longer styled hair, to demonstrate the flexibility of our system.
+
+
+What we plan to deliver: 
+Baseline Goals
+We will build a working real-time strand-based simulation system for hair and fur that demonstrates stable motion, plausible visual behavior, and interactive performance.
+This will include:
+Core Simulation
+A strand-based hair/fur model where each strand is represented as a chain of particles.
+We will preserve strand length and minimize visible stretching.
+Gravity, inertia, and damping for dynamic motion
+Roots attached to a moving character head or body.
+
+Simulation Modeling
+External Forces: gravity, wind
+Shape Matching
+Static Root, 
+Equi-mass Particles in chain
+
+
+
+
+
+Collision and Interaction
+Collision handling between hair strands and a simplified character model, likely using spheres, capsules, or ellipsoids rather than full mesh collision.
+At least one form of user interaction, such as wind, dragging, or a brushing tool.
+External force controls that allow us to demonstrate the responsiveness of the simulation live.
+
+
+Rendering and Demo
+A real-time rendering system that visualizes dense hair or fur clearly.
+Implement Kajiya–Kay Model
+Support for at least two distinct visual presets, such as short fur and long hair
+An interactive demo scene in which a user can move the character or apply forces and observe the hair respond in real time
+Evaluation
+Performance: We will measure the frames per second as a function of strand count and particles per strand, targeting a minimum of 30 FPS with at least 1,000 strands at 10 particles per strand on CPU
+We can plot FPS vs. strand count to help us identify our performance ceiling
+Stability: Whether the simulation avoids visible stretching, jitter, or exploding motion
+Visual quality: We will show qualitative comparisons showing the effect of enabling or disabling features such as collision, damping, and hair-hair interaction
+Questions to Answer
+We plan to deliver answers to:	
+How does simulation performance scale with increasing strand count and segment resolution?
+How well does our simulation preserve strand length under large motion?
+We hope to deliver answer to:
+How much do simplified collision and bulk interaction models improve visual realism?
+Can the method generalize to different fur types (varying lengths, densities)?
+
+Stretch Goals (Hope to Deliver)
+Hair-hair repulsion and friction: We hope to implement a density-grid-based approximation for bulk interactions between hairs, inspired by the method described in Müller et al.’s “Fast Simulation of Inextensible Hair and Fur” 
+Curly or styled hair mode: Add a rendering oriented method for curly hair that does not require changing the physical simulation model
+Method comparison: We would like to compare our inextensible solver against a simpler based baseline to show differences in stretching, stability, and runtime
+Interactive Styling/Grooming tools: We would like to experiment with combing, pulling, or shaping hair as part of the demo
+If we complete these features, we would also like to measure:
+the visual impact of hair-hair repulsion on volume preservation
+the cost of extra interaction and collision features
+the tradeoff between realism and runtime performance
+
+Schedule:
+Week 1: Research and System Design
+Read references on real-time hair and fur simulation
+Finalize on exact simulation representation and implementation
+Set up project repository, build environment, and rendering framework
+Build a minimal scene with a static model and placeholder strand rendering
+Week 2: Core Strand Simulation
+Implement strand representation as particle chains
+Implement integration, gravity, damping, and fixed roots
+Implement Follow-The-Leader constraint solving for inextensibility.
+Test stability on a small number of strands
+Create basic visual debugging tools for particles, segments, and constraints
+Week 3: Collision and Interaction
+Add collision against a simplified character model using proxy shapes
+Add support for external forces such as wind or user dragging
+Tune parameters for visually plausible motion
+Scale up to larger strand counts and test runtime
+Week 4: Rendering, Polish, and Evaluation
+Improve strand rendering and support multiple visual styles such as short fur and long hair
+Add stretch features if possible
+Run final performance experiments and qualitative comparisons
+Prepare slides, videos, and demo interactions for presentation
+Write final report draft and organize figures/results
+
+
+
+
+
+Resources:
+Research Papers
+Müller, Kim, and Chentanez, “Fast Simulation of Inextensible Hair and Fur”
+https://matthias-research.github.io/pages/publications/FTLHairFur.pdf
+Illuminates a geometrically-based method for efficiently simulating hair and fur in real time, maintaining the inextensibility of hair strands by representing each strand as a chain of fixed-length segments and updating particle positions using a Follow-The-Leader approach. This method propagates constraints from root to tip, in one pass, providing fast and stable simulation for interactive settings.
+Müller, Hennix, and Ratcliff, “Position Based Dynamics”
+https://matthias-research.github.io/pages/publications/posBasedDyn.pdf 
+Showcases a Position Based Dynamics (PBD) framework that simulates particle systems by directly projecting positions to handle collision constraints.
+Ward et al., “A Survey on Hair Modeling: Styling, Simulation, and Rendering”
+https://gamma.cs.unc.edu/HAIRSURVEY/latest.pdf 
+Extensive overview of techniques for creating, simulating, and rendering hair, providing good baselines. 
+Petrovic, Henne, and Anderson, “Volumetric Methods for Simulation and Rendering of Hair”
+https://www.semanticscholar.org/paper/Volumetric-Methods-for-Simulation-and-Rendering-of-Petrovic-Henne/8ba4778cc8b775d9940834a7328ce33637d8bafd
+Presents techniques that model hair as a volumetric field, rather than a massive collection of individual strands, enabling efficient simulation and rendering of dense hair/fur.
+Slides: Realtime Hair simulation & rendering 
+https://w3.impa.br/~lvelho/i3d17/demos/Hair.pdf 
+Luiz Velho, a computer graphics researcher at IMPA (Instituto de Matemática Pura e Aplicada)
+Useful slides for visualization.
+Computing
+Language(s): C++
+API(s): OpenGL, CUDA
+Version Control: GitHub (for website hosting, group collaboration, documentation…)
+Hardware: CPUs/GPUs (i.e. Berkeley instructional machines, local machines, etc.)
+Starter Code: We plan to take inspiration from the HW4 (Cloth Sim) codebase. We will adapt concepts from its mass-spring particle system, Verlet integrator, sphere/capsule collision primitives, spatial hashing, and OpenGL rendering pipeline to develop our own strand-based hair and fur simulation.
+
+
+
+
+
+
+
+

@@ -1,0 +1,27 @@
+{
+  "cloth": {
+    "width": 1.0,
+    "height": 1.0,
+    "num_width_points": 50,
+    "num_height_points": 50,
+    "thickness": 0.0095,
+    "orientation": 0,
+    "damping": 0.2,
+    "density": 150.0,
+    "ks": 5000.0,
+    "enable_structural": true,
+    "enable_shearing": true,
+    "enable_bending": true,
+    "pinned": []
+  },
+  "box": {
+    "center": [0.5, 0.3, 0.5],
+    "half_extents": [0.15, 0.15, 0.15],
+    "friction": 0.3
+  },
+  "plane": {
+    "point": [0, 0, 0],
+    "normal": [0, 1, 0],
+    "friction": 0.5
+  }
+}
