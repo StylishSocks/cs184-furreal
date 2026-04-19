@@ -130,6 +130,9 @@ void App::load_shaders() {
     } else if (shader_name == "Normal") {
       hint = ShaderTypeHint::NORMALS;
       std::cout << "Type: Normal" << std::endl;
+    } else if (shader_name == "Fur") {
+      hint = ShaderTypeHint::FUR;
+      std::cout << "Type: Fur" << std::endl;
     } else {
       hint = ShaderTypeHint::PHONG;
       std::cout << "Type: Custom" << std::endl;
@@ -141,11 +144,20 @@ void App::load_shaders() {
     shaders_combobox_names.push_back(shader_name);
   }
 
-  // Default to Wireframe shader
+  // Default to Fur shader when available, fallback to Wireframe.
   for (size_t i = 0; i < shaders_combobox_names.size(); ++i) {
-    if (shaders_combobox_names[i] == "Wireframe") {
+    if (shaders_combobox_names[i] == "Fur") {
       active_shader_idx = i;
       break;
+    }
+  }
+  if (active_shader_idx == 0 && !shaders_combobox_names.empty() &&
+      shaders_combobox_names[0] != "Fur") {
+    for (size_t i = 0; i < shaders_combobox_names.size(); ++i) {
+      if (shaders_combobox_names[i] == "Wireframe") {
+        active_shader_idx = i;
+        break;
+      }
     }
   }
 }
@@ -273,6 +285,30 @@ void App::drawContents() {
     drawHair(shader);
     break;
   }
+  case FUR: {
+    Vector3D cam_pos = camera.position();
+    shader.setUniform("u_cam_pos", Vector3f(cam_pos.x, cam_pos.y, cam_pos.z), false);
+    shader.setUniform("u_light_pos", Vector3f(0.5f, 2.0f, 2.0f), false);
+    shader.setUniform("u_light_intensity", Vector3f(3.0f, 3.0f, 3.0f), false);
+    shader.setUniform("u_root_color", Vector3f(color.r(), color.g(), color.b()), false);
+    shader.setUniform("u_tip_color",
+                      Vector3f(color.r() * 0.72f, color.g() * 0.72f,
+                               color.b() * 0.72f),
+                      false);
+    shader.setUniform("u_alpha", hp ? hp->fur_render.alpha : 0.90f, false);
+    shader.setUniform("u_primary_spec_power",
+                      hp ? hp->fur_render.primary_spec_power : 70.0f, false);
+    shader.setUniform("u_secondary_spec_power",
+                      hp ? hp->fur_render.secondary_spec_power : 20.0f, false);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDepthMask(GL_FALSE);
+    drawHair(shader);
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
+    break;
+  }
   }
 
   // Render collision objects
@@ -285,15 +321,17 @@ void App::drawContents() {
 
 void App::drawWireframe(GLShader &shader) {
   // Render hair strands as wireframe lines
-  if (hair_system) {
-    hair_system->render(shader);
+  if (hair_system && hp) {
+    HairParameters debug_params = *hp;
+    debug_params.render_strategy = HairRenderStrategy::DEBUG_LINES;
+    hair_system->render(shader, &debug_params, camera.position());
   }
 }
 
 void App::drawHair(GLShader &shader) {
   // Render hair strands
-  if (hair_system) {
-    hair_system->render(shader);
+  if (hair_system && hp) {
+    hair_system->render(shader, hp, camera.position());
   }
 }
 
@@ -513,6 +551,12 @@ void App::initGUI(Screen *screen) {
   window->setPosition(Vector2i(default_window_size(0) - 245, 15));
   window->setLayout(new GroupLayout(15, 6, 14, 5));
 
+  auto request_rebuild = [this]() {
+    if (hair_system && hp) {
+      hair_system->rebuild(hp, collision_objects);
+    }
+  };
+
   // Hair parameters
 
   new Label(window, "Hair Parameters", "sans-bold");
@@ -534,7 +578,12 @@ void App::initGUI(Screen *screen) {
     fb->setValue(hp ? hp->num_strands : 1000);
     fb->setSpinnable(true);
     fb->setMinValue(1);
-    fb->setCallback([this](int value) { if (hp) hp->num_strands = value; });
+    fb->setCallback([this, request_rebuild](int value) {
+      if (hp) {
+        hp->num_strands = value;
+        request_rebuild();
+      }
+    });
 
     new Label(panel, "particles :", "sans-bold");
 
@@ -545,7 +594,12 @@ void App::initGUI(Screen *screen) {
     fb->setValue(hp ? hp->particles_per_strand : 10);
     fb->setSpinnable(true);
     fb->setMinValue(2);
-    fb->setCallback([this](int value) { if (hp) hp->particles_per_strand = value; });
+    fb->setCallback([this, request_rebuild](int value) {
+      if (hp) {
+        hp->particles_per_strand = value;
+        request_rebuild();
+      }
+    });
 
     new Label(panel, "length :", "sans-bold");
 
@@ -555,7 +609,49 @@ void App::initGUI(Screen *screen) {
     ffb->setFontSize(14);
     ffb->setValue(hp ? hp->strand_length : 0.3);
     ffb->setSpinnable(true);
-    ffb->setCallback([this](float value) { if (hp) hp->strand_length = value; });
+    ffb->setCallback([this, request_rebuild](float value) {
+      if (hp) {
+        hp->strand_length = value;
+        request_rebuild();
+      }
+    });
+  }
+
+  new Label(window, "Strategies", "sans-bold");
+  {
+    Widget *panel = new Widget(window);
+    GridLayout *layout =
+        new GridLayout(Orientation::Horizontal, 2, Alignment::Middle, 5, 5);
+    layout->setColAlignment({Alignment::Maximum, Alignment::Fill});
+    layout->setSpacing(0, 10);
+    panel->setLayout(layout);
+
+    new Label(panel, "sim :", "sans-bold");
+    ComboBox *sim_cb =
+        new ComboBox(panel, {"DFTL Core", "FTL Reference"});
+    sim_cb->setCallback([this](int idx) {
+      if (!hp) return;
+      hp->sim_strategy = (idx == 1) ? HairSimStrategy::FTL_REFERENCE
+                                    : HairSimStrategy::DFTL_CORE;
+    });
+    sim_cb->setSelectedIndex(
+        hp && hp->sim_strategy == HairSimStrategy::FTL_REFERENCE ? 1 : 0);
+
+    new Label(panel, "render :", "sans-bold");
+    ComboBox *render_cb =
+        new ComboBox(panel, {"Debug Lines", "Fur Ribbons"});
+    render_cb->setCallback([this](int idx) {
+      if (!hp) return;
+      hp->render_strategy = (idx == 0) ? HairRenderStrategy::DEBUG_LINES
+                                       : HairRenderStrategy::FUR_RIBBONS;
+    });
+    render_cb->setSelectedIndex(
+        hp && hp->render_strategy == HairRenderStrategy::DEBUG_LINES ? 0 : 1);
+  }
+
+  {
+    Button *rebuild_btn = new Button(window, "Rebuild Hair");
+    rebuild_btn->setCallback([request_rebuild]() { request_rebuild(); });
   }
 
   // Simulation constants

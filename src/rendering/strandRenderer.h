@@ -3,21 +3,28 @@
 
 #include <vector>
 #include <nanogui/nanogui.h>
+
 #include "../hair/strand.h"
 
 using namespace nanogui;
 
-// Renders hair strands. Supports GL_LINES (simple) and
-// triangle-strip modes for thicker strand visualization.
+struct RenderableStrand {
+  const Strand *strand = nullptr;
+  float width_scale = 1.0f;
+  float color_variation = 0.0f;
+};
+
+// Renders hair strands. Supports a debug line mode and
+// a ribbon mode for denser fur-like appearance.
 class StrandRenderer {
 public:
-  // Render strands as simple GL_LINES.
-  void renderLines(const std::vector<Strand> &strands, GLShader &shader);
+  void renderLines(const std::vector<RenderableStrand> &strands,
+                   GLShader &shader);
 
-  // Render strands as triangle strips for Kajiya-Kay shading.
-  // camera_pos needed to compute view-facing quads.
-  void renderStrips(const std::vector<Strand> &strands, GLShader &shader,
-                    const CGL::Vector3D &camera_pos, float width = 0.002f);
+  void renderRibbons(const std::vector<RenderableStrand> &strands,
+                     GLShader &shader,
+                     const CGL::Vector3D &camera_pos,
+                     float root_width, float tip_width);
 };
 
 #endif /* STRAND_RENDERER_H */

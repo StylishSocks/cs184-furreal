@@ -21,3 +21,26 @@ void solve_ftl(Strand &strand) {
     child.position = parent.position + dir.unit() * strand.rest_lengths[i];
   }
 }
+
+void solve_ftl_with_corrections(Strand &strand,
+                                std::vector<CGL::Vector3D> &corrections) {
+  const int n = strand.num_particles();
+  corrections.clear();
+  corrections.resize(n, CGL::Vector3D(0, 0, 0));
+  if (n < 2) return;
+
+  for (int i = 0; i < n - 1; i++) {
+    PointMass &parent = strand.particles[i];
+    PointMass &child = strand.particles[i + 1];
+
+    if (child.pinned) continue;
+
+    CGL::Vector3D dir = child.position - parent.position;
+    double dist = dir.norm();
+    if (dist < 1e-12) continue;
+
+    CGL::Vector3D projected = parent.position + dir.unit() * strand.rest_lengths[i];
+    corrections[i + 1] = projected - child.position;
+    child.position = projected;
+  }
+}

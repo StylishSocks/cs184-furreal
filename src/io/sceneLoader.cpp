@@ -7,6 +7,7 @@
 #include "../collision/plane.h"
 #include "../collision/box.h"
 #include "../collision/capsule.h"
+#include <string>
 
 using json = nlohmann::json;
 
@@ -184,6 +185,92 @@ bool SceneLoader::loadScene(const string &filename,
       auto it_mass = object.find("mass_per_particle");
       if (it_mass != object.end()) {
         hair_params->mass_per_particle = *it_mass;
+      }
+
+      auto it_dftl = object.find("dftl_velocity_damping");
+      if (it_dftl != object.end()) {
+        hair_params->dftl_velocity_damping = *it_dftl;
+      }
+
+      auto it_sim = object.find("sim_strategy");
+      if (it_sim != object.end()) {
+        hair_params->sim_strategy = parseSimStrategy(it_sim->get<std::string>());
+      }
+
+      auto it_render = object.find("render_strategy");
+      if (it_render != object.end()) {
+        hair_params->render_strategy = parseRenderStrategy(it_render->get<std::string>());
+      }
+
+      auto it_seed = object.find("random_seed");
+      if (it_seed != object.end()) {
+        hair_params->random_seed = *it_seed;
+      }
+
+      auto it_preset = object.find("preset");
+      if (it_preset != object.end()) {
+        hair_params->preset = it_preset->get<std::string>();
+      }
+
+      auto it_attach = object.find("attachment");
+      if (it_attach != object.end()) {
+        auto it_type = it_attach->find("type");
+        if (it_type != it_attach->end()) {
+          hair_params->attachment.type = parseAttachmentType(it_type->get<std::string>());
+        }
+
+        auto it_proxy = it_attach->find("proxy_index");
+        if (it_proxy != it_attach->end()) {
+          hair_params->attachment.proxy_index = *it_proxy;
+        }
+
+        auto it_upper = it_attach->find("upper_hemisphere_only");
+        if (it_upper != it_attach->end()) {
+          hair_params->attachment.upper_hemisphere_only = *it_upper;
+        }
+
+        auto it_guides = it_attach->find("num_guides");
+        if (it_guides != it_attach->end()) {
+          hair_params->attachment.num_guides = *it_guides;
+        }
+
+        auto it_followers = it_attach->find("followers_per_guide");
+        if (it_followers != it_attach->end()) {
+          hair_params->attachment.followers_per_guide = *it_followers;
+        }
+      }
+
+      auto it_fur_render = object.find("fur_render");
+      if (it_fur_render != object.end()) {
+        auto it_root_w = it_fur_render->find("root_width");
+        if (it_root_w != it_fur_render->end()) {
+          hair_params->fur_render.root_width = *it_root_w;
+        }
+
+        auto it_tip_w = it_fur_render->find("tip_width");
+        if (it_tip_w != it_fur_render->end()) {
+          hair_params->fur_render.tip_width = *it_tip_w;
+        }
+
+        auto it_alpha = it_fur_render->find("alpha");
+        if (it_alpha != it_fur_render->end()) {
+          hair_params->fur_render.alpha = *it_alpha;
+        }
+
+        auto it_spec1 = it_fur_render->find("primary_spec_power");
+        if (it_spec1 != it_fur_render->end()) {
+          hair_params->fur_render.primary_spec_power = *it_spec1;
+        }
+
+        auto it_spec2 = it_fur_render->find("secondary_spec_power");
+        if (it_spec2 != it_fur_render->end()) {
+          hair_params->fur_render.secondary_spec_power = *it_spec2;
+        }
+
+        auto it_noise = it_fur_render->find("color_noise");
+        if (it_noise != it_fur_render->end()) {
+          hair_params->fur_render.color_noise = *it_noise;
+        }
       }
 
       // Parse root positions if provided inline

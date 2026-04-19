@@ -1,0 +1,39 @@
+{
+  "box": {
+    "center": [0.5, 0.3, 0.5],
+    "half_extents": [0.16, 0.16, 0.16],
+    "friction": 0.3
+  },
+  "plane": {
+    "point": [0.5, 0.0, 0.5],
+    "normal": [0.0, 1.0, 0.0],
+    "friction": 0.5
+  },
+  "hair": {
+    "num_strands": 1600,
+    "particles_per_strand": 8,
+    "strand_length": 0.12,
+    "damping": 0.02,
+    "mass_per_particle": 0.01,
+    "dftl_velocity_damping": 0.85,
+    "sim_strategy": "dftl_core",
+    "render_strategy": "fur_ribbons",
+    "preset": "dense_fur_cube",
+    "random_seed": 314159,
+    "attachment": {
+      "type": "box",
+      "proxy_index": 0,
+      "upper_hemisphere_only": false,
+      "num_guides": 220,
+      "followers_per_guide": 6
+    },
+    "fur_render": {
+      "root_width": 0.0032,
+      "tip_width": 0.0009,
+      "alpha": 0.90,
+      "primary_spec_power": 65.0,
+      "secondary_spec_power": 16.0,
+      "color_noise": 0.2
+    }
+  }
+}

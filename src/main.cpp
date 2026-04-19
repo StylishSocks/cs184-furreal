@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <chrono>
 #include <nanogui/nanogui.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,35 +31,45 @@ App *app = nullptr;
 GLFWwindow *window = nullptr;
 Screen *screen = nullptr;
 
-namespace {
-
-void generateSphereRoots(const CGL::Vector3D &center, double radius,
-                         int num_roots,
-                         std::vector<CGL::Vector3D> *root_positions,
-                         std::vector<CGL::Vector3D> *root_normals) {
-  root_positions->clear();
-  root_normals->clear();
-  root_positions->reserve(num_roots);
-  root_normals->reserve(num_roots);
-
-  // Golden-angle sampling over the upper hemisphere.
-  constexpr double golden_angle = 2.39996322972865332;
-  constexpr double surface_offset = 1e-4;
-
-  for (int i = 0; i < num_roots; i++) {
-    double u = (i + 0.5) / num_roots; // [0, 1]
-    double y = 1.0 - u;               // Upper hemisphere: y in (0, 1]
-    double radial = sqrt(std::max(0.0, 1.0 - y * y));
-    double phi = i * golden_angle;
-
-    CGL::Vector3D normal(cos(phi) * radial, y, sin(phi) * radial);
-    normal = normal.unit();
-    root_normals->push_back(normal);
-    root_positions->push_back(center + normal * (radius + surface_offset));
+static int run_baseline_check(HairParameters hair_params,
+                              vector<CollisionObject *> &objects,
+                              vector<CGL::Vector3D> &root_positions,
+                              vector<CGL::Vector3D> &root_normals) {
+  if (hair_params.num_strands < 1000) {
+    hair_params.num_strands = 1000;
   }
-}
 
-} // namespace
+  HairSystem hs;
+  hs.buildStrands(root_positions, root_normals, &hair_params, &objects);
+  if (hs.visibleStrandCount() <= 0) {
+    std::cout << "[baseline] failed: no strands generated." << std::endl;
+    return 2;
+  }
+
+  const int steps = 420;
+  vector<CGL::Vector3D> external_accelerations = {CGL::Vector3D(0, -9.8, 0)};
+  auto t0 = std::chrono::high_resolution_clock::now();
+  for (int i = 0; i < steps; i++) {
+    hs.simulate(120.0, 1.0, &hair_params, external_accelerations, &objects);
+  }
+  auto t1 = std::chrono::high_resolution_clock::now();
+
+  double elapsed =
+      std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0).count();
+  double max_stretch = hs.maxRelativeLengthError();
+  double max_root_drift = hs.maxRootDrift();
+  int visible = hs.visibleStrandCount();
+  double steps_per_sec = (elapsed > 0.0) ? (steps / elapsed) : 0.0;
+
+  std::cout << "[baseline] visible_strands=" << visible << std::endl;
+  std::cout << "[baseline] max_relative_stretch=" << max_stretch << std::endl;
+  std::cout << "[baseline] max_root_drift=" << max_root_drift << std::endl;
+  std::cout << "[baseline] sim_steps_per_sec=" << steps_per_sec << std::endl;
+
+  const bool pass = visible >= 1000 && max_stretch < 0.08 && max_root_drift < 0.05;
+  std::cout << "[baseline] result=" << (pass ? "PASS" : "FAIL") << std::endl;
+  return pass ? 0 : 1;
+}
 
 void error_callback(int error, const char* description) {
   puts(description);
@@ -166,6 +177,7 @@ void usageError(const char *binaryName) {
   printf("                     Automatically searched for by default.\n");
   printf("  -a     <INT>       Sphere vertices latitude direction.\n");
   printf("  -o     <INT>       Sphere vertices longitude direction.\n");
+  printf("  -t                 Run baseline acceptance checks without GUI.\n");
   printf("\n");
   exit(-1);
 }
@@ -211,8 +223,9 @@ int main(int argc, char **argv) {
 
   std::string file_to_load_from;
   bool file_specified = false;
+  bool baseline_check_mode = false;
 
-  while ((c = getopt (argc, argv, "f:r:a:o:")) != -1) {
+  while ((c = getopt (argc, argv, "f:r:a:o:t")) != -1) {
     switch (c) {
       case 'f': {
         file_to_load_from = optarg;
@@ -243,6 +256,10 @@ int main(int argc, char **argv) {
         sphere_num_lon = arg_int;
         break;
       }
+      case 't': {
+        baseline_check_mode = true;
+        break;
+      }
       default: {
         usageError(argv[0]);
         break;
@@ -271,38 +288,13 @@ int main(int argc, char **argv) {
     std::cout << "Warn: Unable to load from file: " << file_to_load_from << std::endl;
   }
 
-  // If no root positions were specified in the scene, generate a default patch
-  if (root_positions.empty()) {
-    // Auto-generated roots should be dense enough for the final-project target.
-    hair_params.num_strands = std::max(hair_params.num_strands, 1000);
+  // Baseline requires dense fur target by default.
+  if (hair_params.num_strands < 1000) {
+    hair_params.num_strands = 1000;
+  }
 
-    Sphere *root_sphere = nullptr;
-    for (CollisionObject *obj : objects) {
-      root_sphere = dynamic_cast<Sphere *>(obj);
-      if (root_sphere) break;
-    }
-
-    if (root_sphere) {
-      generateSphereRoots(root_sphere->getPosition(), root_sphere->getRadius(),
-                          hair_params.num_strands, &root_positions,
-                          &root_normals);
-    } else {
-      // Fallback for non-sphere scenes.
-      int grid_side = (int)ceil(sqrt((double)hair_params.num_strands));
-      for (int y = 0; y < grid_side; y++) {
-        for (int x = 0; x < grid_side; x++) {
-          if ((int)root_positions.size() >= hair_params.num_strands) break;
-
-          double tx = (grid_side > 1) ? (double)x / (grid_side - 1) : 0.5;
-          double ty = (grid_side > 1) ? (double)y / (grid_side - 1) : 0.5;
-          double px = 0.2 + 0.6 * tx;
-          double pz = 0.2 + 0.6 * ty;
-          root_positions.push_back(CGL::Vector3D(px, 1.0, pz));
-          root_normals.push_back(CGL::Vector3D(0, -1, 0));
-        }
-      }
-      hair_params.num_strands = (int)root_positions.size();
-    }
+  if (baseline_check_mode) {
+    return run_baseline_check(hair_params, objects, root_positions, root_normals);
   }
 
   glfwSetErrorCallback(error_callback);
@@ -311,7 +303,7 @@ int main(int argc, char **argv) {
 
   // Initialize hair system
   HairSystem *hair_system = new HairSystem();
-  hair_system->buildStrands(root_positions, root_normals, &hair_params);
+  hair_system->buildStrands(root_positions, root_normals, &hair_params, &objects);
 
   // Initialize the App
   HairParameters *hp = new HairParameters(hair_params);
