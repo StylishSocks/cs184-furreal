@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FurReal Project Proposal</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<header>
+  <div class="tag">CS 184 · Spring 2026 · Project Proposal</div>
+  <h1><span>FurReal:</span> Interactive Real-Time Hair and Fur Simulation</h1>
+  <p class="summary">
+    Hair and fur are visually important but difficult to simulate in real time — each strand must remain inextensible while responding to motion, collision, and external forces. We will build an interactive real-time hair and fur simulation system supporting thousands of strands, approximate hair-hair interactions, and user-controlled effects such as wind and styling. Our goal is a simulation that is physically plausible and visually compelling for animated characters.
+  </p>
+  <div class="team-grid">
+    <span class="team-member">Roshan Parekh</span>
+    <span class="team-member">Yash Kodali</span>
+    <span class="team-member">Spencer Nelson</span>
+    <span class="team-member">Hetvi Patel</span>
+  </div>
+</header>
+
+<section class="page-nav">
+  <div class="button-row">
+    <a class="nav-btn active" href="project_proposal.html">Project Proposal</a>
+    <a class="nav-btn" href="milestone.html">Milestone</a>
+    <a class="nav-btn" href="final_report.html">Final Report</a>
+  </div>
+</section>
+
+<div class="container">
+
+  <section>
+    <h2>Problem Description</h2>
+    <p>Realistic hair and fur are still challenging problems in computer graphics, especially in interactive settings. Unlike offline film production — where simulation can afford to take significant time — real-time applications such as games and demos require stable and visually believable motion under strict performance constraints. Hair and fur are difficult to simulate because they consist of thousands of thin strands, each of which must resist stretching, respond to gravity, and interact with the body and neighboring hairs.</p>
+    <p>Our project focuses on building a real-time physical simulation system for hair and fur attached to an animated character or model. We are interested in strand-based simulation methods that maintain inextensibility while remaining efficient enough for interactive framerates. A key inspiration is Müller et al.'s <em>"Fast Simulation of Inextensible Hair and Fur,"</em> which presents an approach for simulating thousands of strands in a single iteration per frame, with approximate methods for hair-hair repulsion, friction, and character collision.</p>
+    <p>The main challenge is balancing realism, robustness, and performance. A physically accurate simulation of every hair-hair interaction is too computationally expensive as strand counts grow. We plan to use efficient approximations — particle chains for strands, simplified collision volumes for the character, and density-grid-based approximations for hair-hair interaction — to push realism within real-time constraints.</p>
+    <p>Our general approach represents each hair strand as a chain of particles connected by distance constraints. We will implement a Follow-The-Leader style solver to enforce strand inextensibility efficiently, then layer on collision handling, external forces, and interactive controls. We also plan to support multiple visual styles — including short fur and longer styled hair — to demonstrate the flexibility of our system.</p>
+  </section>
+
+  <section>
+    <h2>Goals and Deliverables</h2>
+
+    <p>Our primary visual output will be an interactive 3D scene showing a character model with thousands of simulated hair or fur strands responding dynamically to gravity, wind, and user input in real time. We will also produce qualitative comparison renders showing the visual difference between simulation states — with and without features such as collision, damping, and hair-hair interaction.</p>
+
+    <h3>Baseline Goals — What We Plan to Deliver</h3>
+    <p>We will build a working real-time strand-based simulation system for hair and fur that demonstrates stable motion, plausible visual behavior, and interactive performance.</p>
+
+    <div class="card">
+      <div class="card-title">Core Simulation</div>
+      <ul>
+        <li>A strand-based hair/fur model where each strand is represented as a chain of particles</li>
+        <li>Strand length preservation — minimizing visible stretching</li>
+        <li>Gravity, inertia, and damping for dynamic motion</li>
+        <li>Roots attached to a moving character head or body</li>
+      </ul>
+    </div>
+
+    <div style="margin: 28px 0; text-align: center;">
+      <img src="diagram.png" alt="Simulation Modeling Diagram" style="max-width: 100%; border: 1px solid var(--border); border-radius: 4px;"/>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Collision and Interaction</div>
+      <ul>
+        <li>Collision handling between hair strands and a simplified character model using spheres, capsules, or ellipsoids — not full mesh collision</li>
+        <li>At least one form of user interaction — wind, dragging, or a brushing tool</li>
+        <li>External force controls to demonstrate simulation responsiveness in the live demo</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Rendering and Demo</div>
+      <ul>
+        <li>A real-time rendering system that visualizes dense hair or fur clearly</li>
+        <li>Kajiya–Kay lighting model for physically-based strand shading</li>
+        <li>Support for at least two distinct visual presets — short fur and long hair</li>
+        <li>An interactive demo scene where the user applies forces and observes hair respond in real time</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Evaluation</div>
+      <ul>
+        <li><strong style="color:var(--text)">Performance:</strong> We will measure FPS as a function of strand count and particles per strand, targeting a minimum of 30 FPS with at least 1,000 strands at 10 particles per strand on CPU. We will plot FPS vs. strand count to identify our performance ceiling.</li>
+        <li><strong style="color:var(--text)">Stability:</strong> Whether the simulation avoids visible stretching, jitter, or exploding motion</li>
+        <li><strong style="color:var(--text)">Visual quality:</strong> Qualitative comparisons showing the effect of enabling/disabling collision, damping, and hair-hair interaction</li>
+      </ul>
+    </div>
+
+    <h3>Questions to Answer</h3>
+    <div class="q-block">
+      <div class="q-label plan">We plan to deliver answers to:</div>
+      <ul>
+        <li>How does simulation performance scale with increasing strand count and segment resolution?</li>
+        <li>How well does our simulation preserve strand length under large motion?</li>
+      </ul>
+    </div>
+    <div class="q-block">
+      <div class="q-label hope">We hope to deliver answers to:</div>
+      <ul>
+        <li>How much do simplified collision and bulk interaction models improve visual realism?</li>
+        <li>Can the method generalize to different fur types (varying lengths, densities)?</li>
+      </ul>
+    </div>
+
+    <h3>Stretch Goals — What We Hope to Deliver</h3>
+    <div class="card">
+      <div class="stretch-item">
+        <strong>Hair-hair repulsion and friction</strong>
+        <p style="margin-top:6px;font-size:14px;">A density-grid-based approximation for bulk interactions between hairs, inspired by Müller et al.'s <em>Fast Simulation of Inextensible Hair and Fur.</em></p>
+      </div>
+      <div class="stretch-item">
+        <strong>Curly or styled hair mode</strong>
+        <p style="margin-top:6px;font-size:14px;">A rendering-oriented method for curly hair that does not require changing the physical simulation model.</p>
+      </div>
+      <div class="stretch-item">
+        <strong>Method comparison</strong>
+        <p style="margin-top:6px;font-size:14px;">Compare our inextensible solver against a simpler spring-based baseline to quantify differences in stretching, stability, and runtime.</p>
+      </div>
+      <div class="stretch-item">
+        <strong>Interactive styling / grooming tools</strong>
+        <p style="margin-top:6px;font-size:14px;">Combing, pulling, or shaping hair strands interactively as part of the live demo.</p>
+      </div>
+      <p style="margin-top:16px;font-size:13px;color:var(--muted)">If stretch goals are reached, we will also measure: the visual impact of hair-hair repulsion on volume preservation, the cost of extra interaction/collision features, and the tradeoff between realism and runtime performance.</p>
+    </div>
+
+    <div class="staff-q">
+      <h3>Questions for Course Staff</h3>
+      <ul>
+        <li>Is our scope appropriate for a 4-week timeline, or would you recommend narrowing or expanding any component?</li>
+        <li>Are there recommended libraries or rendering approaches for strand visualization we should consider?</li>
+        <li>Are we permitted to build directly on top of our HW4 (Cloth Sim) codebase rather than starting from scratch?</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Schedule</h2>
+
+    <div class="week-block">
+      <div class="week-label">Week 1<br/>Apr 7–13</div>
+      <div class="week-content">
+        <strong>Research and System Design</strong>
+        <ul>
+          <li>Read references on real-time hair and fur simulation</li>
+          <li>Finalize simulation representation and implementation approach</li>
+          <li>Set up project repository, build environment, and rendering framework</li>
+          <li>Build a minimal scene with a static model and placeholder strand rendering</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="week-block">
+      <div class="week-label">Week 2<br/>Apr 14–20</div>
+      <div class="week-content">
+        <strong>Core Strand Simulation</strong>
+        <ul>
+          <li>Implement strand representation as particle chains</li>
+          <li>Implement integration, gravity, damping, and fixed roots</li>
+          <li>Implement Follow-The-Leader constraint solving for inextensibility</li>
+          <li>Test stability on a small number of strands</li>
+          <li>Create basic visual debugging tools for particles, segments, and constraints</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="week-block">
+      <div class="week-label">Week 3<br/>Apr 21–27</div>
+      <div class="week-content">
+        <strong>Collision and Interaction</strong>
+        <ul>
+          <li>Add collision against a simplified character model using proxy shapes</li>
+          <li>Add support for external forces — wind and user dragging</li>
+          <li>Tune parameters for visually plausible motion</li>
+          <li>Scale up to larger strand counts and test runtime performance</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="week-block">
+      <div class="week-label">Week 4<br/>Apr 28–May 4</div>
+      <div class="week-content">
+        <strong>Rendering, Polish, and Evaluation</strong>
+        <ul>
+          <li>Improve strand rendering; support multiple visual styles (short fur, long hair)</li>
+          <li>Attempt hair-hair repulsion and curly hair mode if ahead of schedule</li>
+          <li>Run final performance experiments and qualitative comparisons</li>
+          <li>Prepare slides, video, and demo interactions for presentation</li>
+          <li>Write final report draft and organize figures/results</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Resources</h2>
+
+    <h3>Research Papers</h3>
+
+    <div class="paper-ref">
+      <div class="paper-title">Müller, Kim, and Chentanez — "Fast Simulation of Inextensible Hair and Fur"</div>
+      <a href="https://matthias-research.github.io/pages/publications/FTLHairFur.pdf" target="_blank">matthias-research.github.io/pages/publications/FTLHairFur.pdf</a>
+      <div class="paper-desc">A geometrically-based method for efficiently simulating hair and fur in real time. Represents each strand as a chain of fixed-length segments updated via Follow-The-Leader, propagating constraints root-to-tip in a single pass for fast, stable interactive simulation.</div>
+    </div>
+
+    <div class="paper-ref">
+      <div class="paper-title">Müller, Hennix, and Ratcliff — "Position Based Dynamics"</div>
+      <a href="https://matthias-research.github.io/pages/publications/posBasedDyn.pdf" target="_blank">matthias-research.github.io/pages/publications/posBasedDyn.pdf</a>
+      <div class="paper-desc">A PBD framework that simulates particle systems by directly projecting positions to satisfy constraints, providing stable real-time behavior. Relevant to our constraint-based strand model and inextensibility enforcement.</div>
+    </div>
+
+    <div class="paper-ref">
+      <div class="paper-title">Ward et al. — "A Survey on Hair Modeling: Styling, Simulation, and Rendering"</div>
+      <a href="https://gamma.cs.unc.edu/HAIRSURVEY/latest.pdf" target="_blank">gamma.cs.unc.edu/HAIRSURVEY/latest.pdf</a>
+      <div class="paper-desc">An extensive overview of techniques for creating, simulating, and rendering hair, providing useful baselines and context for our design decisions.</div>
+    </div>
+
+    <div class="paper-ref">
+      <div class="paper-title">Petrovic, Henne, and Anderson — "Volumetric Methods for Simulation and Rendering of Hair"</div>
+      <a href="https://www.semanticscholar.org/paper/Volumetric-Methods-for-Simulation-and-Rendering-of-Petrovic-Henne/8ba4778cc8b775d9940834a7328ce33637d8bafd" target="_blank">semanticscholar.org</a>
+      <div class="paper-desc">Models hair as a volumetric field rather than individual strands, enabling efficient simulation and rendering of dense hair. Relevant to our density-grid-based hair-hair interaction approximation.</div>
+    </div>
+
+    <div class="paper-ref">
+      <div class="paper-title">Velho — "Realtime Hair Simulation & Rendering" (Slides)</div>
+      <a href="https://w3.impa.br/~lvelho/i3d17/demos/Hair.pdf" target="_blank">w3.impa.br/~lvelho/i3d17/demos/Hair.pdf</a>
+      <div class="paper-desc">Slides by Luiz Velho (IMPA) providing useful visual reference and overview of real-time hair simulation and rendering techniques.</div>
+    </div>
+
+    <h3>Computing</h3>
+    <div class="card">
+      <div class="compute-row">
+        <div class="compute-key">Language(s)</div>
+        <div class="compute-val">C++</div>
+      </div>
+      <div class="compute-row">
+        <div class="compute-key">API(s)</div>
+        <div class="compute-val">OpenGL; CUDA as a stretch goal for GPU-accelerated strand simulation</div>
+      </div>
+      <div class="compute-row">
+        <div class="compute-key">Version Control</div>
+        <div class="compute-val">GitHub — website hosting, group collaboration, documentation</div>
+      </div>
+      <div class="compute-row">
+        <div class="compute-key">Hardware</div>
+        <div class="compute-val">CPUs/GPUs — Berkeley instructional machines (s330, eda) and local machines</div>
+      </div>
+      <div class="compute-row">
+        <div class="compute-key">Starter Code</div>
+        <div class="compute-val">We plan to take inspiration from the CS184 Homework 4 (Cloth Simulation) codebase, adapting concepts from its mass-spring particle system, Verlet integrator, sphere/capsule collision primitives, spatial hashing, and OpenGL rendering pipeline to develop our own strand-based hair and fur simulation system.</div>
+      </div>
+    </div>
+
+  </section>
+
+</div>
+<footer>FurReal · CS 184 Final Project</footer>
+</body>
+</html>

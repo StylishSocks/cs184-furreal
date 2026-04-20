@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FurReal Milestone Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<header>
+  <div class="tag">CS 184 · Spring 2026 · Milestone Report</div>
+  <h1><span>FurReal:</span> Milestone</h1>
+  <p class="summary">
+  </p>
+  <div class="team-grid">
+    <span class="team-member">Roshan Parekh</span>
+    <span class="team-member">Yash Kodali</span>
+    <span class="team-member">Spencer Nelson</span>
+    <span class="team-member">Hetvi Patel</span>
+  </div>
+</header>
+
+<section class="page-nav">
+  <div class="button-row">
+    <a class="nav-btn" href="project_proposal.html">Project Proposal</a>
+    <a class="nav-btn active" href="milestone.html">Milestone</a>
+    <a class="nav-btn" href="final_report.html">Final Report</a>
+  </div>
+</section>
+
+<div class="container">
+
+  <section>
+    <h2>Milestone Summary</h2>
+    <h3>What We Accomplished</h3>
+    <p> We refactored and adjusted the HW4-style environment (C++ update loop, OpenGL rendering, NanoGUI, scene/collision plumbing) such that our new hair code is runtime-selectable rather than hardcoded. We can switch simulation and rendering strategies during execution, which keeps experiments and future method comparisons cleaner.</p>
+    <p>For simulation, we currently support DFTL Core and FTL Reference modes. For rendering, we support Debug Lines, Guide Lines, FTL Chains, and Fur Ribbons. We also introduced debug-oriented visualization views that emphasize X/Y/Z behavior to make directionality, motion, and solver artifacts easier to inspect while tuning.</p>
+    <p>At a systems level, we implemented proxy-root attachment, a guide+follower representation, and dense fur rendering. Roots are anchored through proxy-local coordinates so they move correctly with scene objects; sparse guide strands are simulated while dense followers are interpolated for volume; and fur ribbons provide a fuller final look than simple line rendering.</p>
+
+    <h3>Preliminary Results</h3>
+    <p>The baseline now produces stable dense fur on sphere and box scenes, with preserved strand length and reliable root attachment under motion. We are able to run 150K strands on a sphere and box, with maximum relative stretch on the order of 1e-15 to 1e-14 and root drift around 0.0001 in our current configurations.
+      We are also evaluating higher strand counts to understand performance limits and tuning tradeoffs.</p>
+
+    <div class="image-row four-up">
+      <figure class="image-tile">
+        <img src="milestone_images/debug_lines_sphere.png" alt="Debug lines mode on sphere"/>
+        <figcaption>Debug Lines</figcaption>
+      </figure>
+      <figure class="image-tile">
+        <img src="milestone_images/guide_lines_sphere.png" alt="Guide lines mode on sphere"/>
+        <figcaption>Guide Lines</figcaption>
+      </figure>
+      <figure class="image-tile">
+        <img src="milestone_images/ftl_chains_sphere.png" alt="FTL chains mode on sphere"/>
+        <figcaption>FTL Chains</figcaption>
+      </figure>
+      <figure class="image-tile">
+        <img src="milestone_images/fur_ribbons_sphere.png" alt="Fur ribbons mode on sphere"/>
+        <figcaption>Fur Ribbons</figcaption>
+      </figure>
+    </div>
+
+    <div class="image-row">
+      <figure class="image-tile">
+        <img src="milestone_images/sphere_hair_fall_begininng.png" alt="Beginning of hair fall on sphere"/>
+        <figcaption>Hair Fall: Beginning</figcaption>
+      </figure>
+      <figure class="image-tile">
+        <img src="milestone_images/sphere_hair_fall_middle.png" alt="Middle of hair fall on sphere"/>
+        <figcaption>Hair Fall: Middle</figcaption>
+      </figure>
+      <figure class="image-tile">
+        <img src="milestone_images/sphere_hair_fall_end.png" alt="End of hair fall on sphere"/>
+        <figcaption>Hair Fall: End</figcaption>
+      </figure>
+    </div>
+    <div class="caption">Top row compares render modes with a fixed camera view. Bottom row shows temporal progression of falling hair.</div>
+
+    <h3>Updated Work Plan</h3>
+    <p>We are on track with the proposal baseline: modular runtime switching, attachment, guide/follower interpolation, and a dense fur render path are all in place. The main remaining gaps are post-baseline features from the plan: stronger hair-hair interaction, advanced appearance/shadowing, and better high-density performance at very large strand counts. The updated plan below reflects that scope.</p>
+    <ol>
+      <li><strong style="color:var(--text)">Priority 1:</strong> Add density-grid hair-hair friction and repulsion.</li>
+      <li><strong style="color:var(--text)">Priority 2:</strong> Profile hot stages and cut follower/ribbon CPU cost.</li>
+      <li><strong style="color:var(--text)">Priority 3:</strong> Expand collisions to configurable proxy sets.</li>
+      <li><strong style="color:var(--text)">Priority 4:</strong> Improve guide-to-follower interpolation and reduce popping.</li>
+      <li><strong style="color:var(--text)">Priority 5:</strong> Improve strand shading and alpha ordering.</li>
+      <li><strong style="color:var(--text)">Priority 6:</strong> Add a render-only curl/styled mode.</li>
+      <li><strong style="color:var(--text)">Priority 7:</strong> Add brush/comb/wind interaction tools.</li>
+      <li><strong style="color:var(--text)">Priority 8:</strong> Run evaluation experiments and generate final plots.</li>
+      <li><strong style="color:var(--text)">Priority 9:</strong> Lock demo scenes, presets, and camera paths.</li>
+    </ol>
+
+    <h3>Links</h3>
+    <p><strong style="color:var(--text)">Milestone Video Link:</strong> &lt;link&gt;</p>
+    <p><strong style="color:var(--text)">Milestone Slides Link:</strong> &lt;link&gt;</p>
+  </section>
+
+</div>
+<footer>FurReal · Milestone Report</footer>
+</body>
+</html>
