@@ -391,6 +391,118 @@ ul li::before {
   margin-bottom: 12px;
 }
 
+/* Milestone page: denser layout for on-screen and print readability */
+body.milestone-page .container {
+  max-width: 980px;
+  padding: 0 24px;
+}
+
+body.milestone-page section {
+  padding: 36px 0;
+}
+
+body.milestone-page h2 {
+  margin-bottom: 18px;
+}
+
+body.milestone-page h3 {
+  margin: 16px 0 8px;
+}
+
+body.milestone-page p {
+  margin-bottom: 10px;
+}
+
+body.milestone-page .caption {
+  margin-bottom: 8px;
+}
+
+@media print {
+  @page {
+    margin: 0.45in;
+  }
+
+  body.milestone-page {
+    font-size: 12px;
+    line-height: 1.4;
+    color: #111;
+    background: #fff;
+  }
+
+  body.milestone-page header {
+    padding: 20px 0 10px;
+    border-bottom: 1px solid #ccc;
+    background: none;
+  }
+
+  body.milestone-page header::before {
+    display: none;
+  }
+
+  body.milestone-page .page-nav,
+  body.milestone-page footer {
+    display: none;
+  }
+
+  body.milestone-page .container {
+    max-width: none;
+    padding: 0;
+  }
+
+  body.milestone-page section {
+    padding: 10px 0;
+    border-bottom: none;
+  }
+
+  body.milestone-page h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  body.milestone-page h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  body.milestone-page h3 {
+    font-size: 14px;
+    margin: 10px 0 6px;
+  }
+
+  body.milestone-page p,
+  body.milestone-page li {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  body.milestone-page ul li {
+    padding: 2px 0 2px 14px;
+  }
+
+  body.milestone-page .image-row {
+    gap: 6px;
+    margin: 10px 0 6px;
+  }
+
+  body.milestone-page .image-tile figcaption {
+    font-size: 10px;
+    padding: 5px 6px;
+  }
+
+  body.milestone-page .week-block {
+    margin-bottom: 0;
+  }
+
+  body.milestone-page .week-label {
+    font-size: 10px;
+    padding-right: 10px;
+  }
+
+  body.milestone-page .week-content {
+    padding-left: 12px;
+  }
+}
+
 footer {
   border-top: 1px solid var(--border);
   color: var(--muted);
