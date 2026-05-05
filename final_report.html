@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="styles.css"/>
 </head>
-<body>
+<body class="final-report-page">
 
 <header>
   <div class="tag">CS 184 · Spring 2026 · Final Report</div>
@@ -88,44 +88,99 @@
 
     <h3>Final Visual Outputs</h3>
     <div class="image-row">
-      <div class="placeholder">PLACEHOLDER<br/>final hero render (long hair)</div>
-      <div class="placeholder">PLACEHOLDER<br/>final hero render (short fur)</div>
-      <div class="placeholder">PLACEHOLDER<br/>close-up shading detail</div>
+      <figure class="image-tile">
+        <img src="final_images/head_shot_1.png" alt="Final human head hair render"/>
+      </figure>
+      <figure class="image-tile">
+        <img src="final_images/head_shot_fur_ribbons.png" alt="Final fur ribbons render on human head"/>
+      </figure>
+      <figure class="image-tile">
+        <img src="final_images/initialRenderingGUIImages/CurlyRibbons.png" alt="Curly ribbon hair rendering mode"/>
+      </figure>
     </div>
 
     <h3>Render Mode Comparison</h3>
     <div class="image-row four-up">
-      <div class="placeholder">PLACEHOLDER<br/>debug lines</div>
-      <div class="placeholder">PLACEHOLDER<br/>guide lines</div>
-      <div class="placeholder">PLACEHOLDER<br/>FTL chains</div>
-      <div class="placeholder">PLACEHOLDER<br/>fur ribbons</div>
+      <figure class="image-tile">
+        <img src="final_images/initialRenderingGUIImages/DebugLines.png" alt="Debug lines rendering mode"/>
+      </figure>
+      <figure class="image-tile">
+        <img src="final_images/initialRenderingGUIImages/GuideLines.png" alt="Guide lines rendering mode"/>
+      </figure>
+      <figure class="image-tile">
+        <img src="final_images/initialRenderingGUIImages/FTL%20Chains.png" alt="FTL chains rendering mode"/>
+      </figure>
+      <figure class="image-tile">
+        <img src="final_images/initialRenderingGUIImages/FurRibbons.png" alt="Fur ribbons rendering mode"/>
+      </figure>
+    </div>
+    <div class="image-row four-up">
+      <figure class="image-tile">
+        <img src="final_images/head_shot_debug_lines.png" alt="Headshot debug lines rendering mode"/>
+      </figure>
+      <figure class="image-tile">
+        <img src="final_images/head_shot_guidelines.png" alt="Headshot guide lines rendering mode"/>
+      </figure>
+      <figure class="image-tile">
+        <img src="final_images/head_shot_ftl_chains.png" alt="Headshot FTL chains rendering mode"/>
+      </figure>
+      <figure class="image-tile">
+        <img src="final_images/head_shot_fur_ribbons.png" alt="Headshot fur ribbons rendering mode"/>
+      </figure>
     </div>
 
     <h3>Scene Coverage</h3>
     <div class="image-row">
-      <div class="placeholder">PLACEHOLDER<br/>scene A (head mesh)</div>
-      <div class="placeholder">PLACEHOLDER<br/>scene B (rabbit mesh)</div>
-      <div class="placeholder">PLACEHOLDER<br/>scene C (stress test)</div>
+      <figure class="image-tile">
+        <img src="final_images/scene_human_head.png" alt="Hair simulation on human head scene"/>
+      </figure>
+      <figure class="image-tile">
+        <img src="final_images/scene_rabbit.png" alt="Fur simulation on rabbit scene"/>
+      </figure>
+      <figure class="image-tile">
+        <img src="final_images/scene_sphere.png" alt="Dense fur simulation on sphere scene"/>
+      </figure>
     </div>
 
     <h3>Interaction and Dynamics</h3>
-    <div class="image-row">
-      <div class="placeholder">PLACEHOLDER<br/>comb/brush interaction</div>
-      <div class="placeholder">PLACEHOLDER<br/>wind and circular wind</div>
-      <div class="placeholder">PLACEHOLDER<br/>curl styling mode</div>
+    <div class="image-row four-up">
+      <figure class="image-tile">
+        <img src="final_images/headshot_brush.png" alt="Brush interaction with hair"/>
+      </figure>
+      <figure class="image-tile">
+        <img src="final_images/headshot_comb.png" alt="Comb interaction with hair"/>
+      </figure>
+      <figure class="image-tile">
+        <img src="final_images/headshot_wind.png" alt="Wind interaction with hair"/>
+      </figure>
+      <figure class="image-tile">
+        <img src="final_images/headshot_hairblower.png" alt="Hair blower interaction with hair"/>
+      </figure>
     </div>
 
     <h3>Video and Demo</h3>
-    <p><strong style="color:var(--text)">Final Presentation Slides:</strong>
-      <a href="https://docs.google.com/presentation/d/1M7LG8voJIa6_lTd7aNmjt0dCc2EUJaOYCY2ukDf74C8/edit?slide=id.g3dc2aa84162_0_73#slide=id.g3dc2aa84162_0_73" target="_blank" rel="noopener noreferrer">
-        https://docs.google.com/presentation/d/1M7LG8voJIa6_lTd7aNmjt0dCc2EUJaOYCY2ukDf74C8/edit?slide=id.g3dc2aa84162_0_73#slide=id.g3dc2aa84162_0_73
+    <p><strong style="color:var(--text)">Drive Folder with Slides and Video:</strong>
+      <a href="https://drive.google.com/drive/u/1/folders/1lOwFnaciiNRx1MHACNAaNIxCv0uPZRnA?usp=sharing" target="_blank" rel="noopener noreferrer">
+        https://drive.google.com/drive/u/1/folders/1lOwFnaciiNRx1MHACNAaNIxCv0uPZRnA?usp=sharing
       </a>
     </p>
-    <p><strong style="color:var(--text)">Final Video:</strong> [TBD - add showcase clip/GIF/video link]</p>
+    <p>Showcase clips of the final interactive system.</p>
     <div class="image-row">
-      <div class="placeholder">PLACEHOLDER<br/>embedded GIF/clip frame 1</div>
-      <div class="placeholder">PLACEHOLDER<br/>embedded GIF/clip frame 2</div>
-      <div class="placeholder">PLACEHOLDER<br/>embedded GIF/clip frame 3</div>
+      <figure class="image-tile">
+        <video controls muted playsinline preload="metadata">
+          <source src="videos/video1.mp4" type="video/mp4"/>
+        </video>
+      </figure>
+      <figure class="image-tile">
+        <video controls muted playsinline preload="metadata">
+          <source src="videos/video2.mp4" type="video/mp4"/>
+        </video>
+      </figure>
+      <figure class="image-tile">
+        <video controls muted playsinline preload="metadata">
+          <source src="videos/video3.mp4" type="video/mp4"/>
+        </video>
+      </figure>
     </div>
   </section>
 
