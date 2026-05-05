@@ -11,9 +11,9 @@
 
 <header>
   <div class="tag">CS 184 · Spring 2026 · Final Report</div>
-  <h1><span>FurReal:</span> Final Report (In Progress)</h1>
+  <h1><span>FurReal:</span> Interactive Real-Time Hair and Fur Simulation</h1>
   <p class="summary">
-    This page is reserved for the final deliverable, including complete results, evaluation figures, and method comparisons.
+    We built an interactive strand-based system for real-time hair and fur with constraint-based simulation, multiple render modes, mesh-attached roots, collision proxies, and CUDA acceleration for high strand counts.
   </p>
   <div class="team-grid">
     <span class="team-member">Roshan Parekh</span>
@@ -33,22 +33,153 @@
 
 <div class="container">
   <section>
-    <h2>Planned Final Sections</h2>
-    <div class="card">
-      <div class="card-title">Report Structure</div>
-      <ul>
-        <li>Introduction and method overview</li>
-        <li>Implementation details and architecture</li>
-        <li>Performance and stability evaluation</li>
-        <li>Visual ablations and comparisons</li>
-        <li>Limitations and future work</li>
-      </ul>
+    <h2>Abstract</h2>
+    <p>
+      FurReal is a real-time hair and fur simulation and rendering project focused on balancing stability, visual quality, and performance. We represent each strand as a particle chain and enforce inextensibility with Follow-The-Leader style projection. The system supports gravity, damping, wind, user interaction tools, and collision handling against sphere/capsule/ellipsoid style proxies. We implemented both CPU and CUDA simulation paths and several rendering modes, from debug visualizations to dense fur ribbons with stylized strand shading. Our final system supports interactive grooming-style controls and scalable strand counts while maintaining plausible strand motion.
+    </p>
+  </section>
+
+  <section>
+    <h2>Technical Approach</h2>
+
+    <h3>1) Simulation Model and Integration</h3>
+    <p>
+      Hair is modeled as guide strands, each as a chain of particles integrated with Verlet-style updates. We apply gravity and external forces, then project constraints from root to tip to preserve segment lengths. This follows the core ideas in Müller et al. (FTL Hair/Fur), adapted to our project architecture.
+    </p>
+
+    <h3>2) Constraint Solvers and Runtime Modes</h3>
+    <p>
+      We implemented both FTL-style and DFTL-style solver modes and made them runtime-selectable. This allowed side-by-side evaluation of stability/performance behavior without restructuring scene code. We also kept debugging modes (debug lines, guide lines, chain views) active through development to isolate solver artifacts quickly.
+    </p>
+
+    <h3>3) Root Attachment and Collision</h3>
+    <p>
+      Root particles are attached using local coordinates on mesh-linked proxies so hair remains anchored as objects move. Collision handling uses simplified proxy geometry (spheres/capsules/ellipsoids/custom proxies) to avoid full mesh collision cost while preserving believable contact behavior.
+    </p>
+
+    <h3>4) Guide/Follower Fur Representation</h3>
+    <p>
+      We simulate sparse guide strands and interpolate dense follower strands for volume. This significantly reduces simulation cost while still producing full fur coverage. We tuned interpolation weights and spacing to reduce popping and preserve shape coherence under fast motion.
+    </p>
+
+    <h3>5) Rendering Modes and Shading</h3>
+    <p>
+      Our renderer includes multiple modes: debug lines, guide lines, FTL chains, and fur ribbons. Final appearance uses stylized strand/ribbon shading with root-to-tip variation and tunable highlight behavior for better depth and motion readability.
+    </p>
+
+    <h3>6) Hair-Hair Interaction and Forces</h3>
+    <p>
+      We added approximate density-based hair-hair effects (repulsion/friction style behavior) and interactive force tools including brush/comb/wind/circular wind modes. These controls provide direct manipulation and improve the visual richness of motion.
+    </p>
+
+    <h3>7) CUDA and Optimization</h3>
+    <p>
+      We began with an OpenGL/CPU simulation path and then migrated critical simulation work to CUDA kernels. This improved throughput for higher strand counts and enabled more interactive settings for dense scenes. Additional profiling focused on follower generation and ribbon update stages.
+    </p>
+
+    <h3>Challenges and Lessons Learned</h3>
+    <p>
+      The main challenge was balancing physical constraints with frame-time budgets. Dense hair makes naive interaction and collision expensive, so we relied on approximations (proxy collisions, guide/follower simulation, bulk interactions) and targeted GPU acceleration. We also learned that strong visual debugging views are essential for diagnosing instability and attachment errors quickly.
+    </p>
+  </section>
+
+  <section>
+    <h2>Results</h2>
+
+    <h3>Final Visual Outputs</h3>
+    <div class="image-row">
+      <div class="placeholder">PLACEHOLDER<br/>final hero render (long hair)</div>
+      <div class="placeholder">PLACEHOLDER<br/>final hero render (short fur)</div>
+      <div class="placeholder">PLACEHOLDER<br/>close-up shading detail</div>
     </div>
 
+    <h3>Render Mode Comparison</h3>
+    <div class="image-row four-up">
+      <div class="placeholder">PLACEHOLDER<br/>debug lines</div>
+      <div class="placeholder">PLACEHOLDER<br/>guide lines</div>
+      <div class="placeholder">PLACEHOLDER<br/>FTL chains</div>
+      <div class="placeholder">PLACEHOLDER<br/>fur ribbons</div>
+    </div>
+
+    <h3>Scene Coverage</h3>
     <div class="image-row">
-      <div class="placeholder">PLACEHOLDER<br/>hero result image</div>
-      <div class="placeholder">PLACEHOLDER<br/>ablation figure</div>
-      <div class="placeholder">PLACEHOLDER<br/>fps scaling plot</div>
+      <div class="placeholder">PLACEHOLDER<br/>scene A (head mesh)</div>
+      <div class="placeholder">PLACEHOLDER<br/>scene B (rabbit mesh)</div>
+      <div class="placeholder">PLACEHOLDER<br/>scene C (stress test)</div>
+    </div>
+
+    <h3>Interaction and Dynamics</h3>
+    <div class="image-row">
+      <div class="placeholder">PLACEHOLDER<br/>comb/brush interaction</div>
+      <div class="placeholder">PLACEHOLDER<br/>wind and circular wind</div>
+      <div class="placeholder">PLACEHOLDER<br/>curl styling mode</div>
+    </div>
+
+    <h3>Video and Demo</h3>
+    <p><strong style="color:var(--text)">Final Presentation Slides:</strong>
+      <a href="https://docs.google.com/presentation/d/1M7LG8voJIa6_lTd7aNmjt0dCc2EUJaOYCY2ukDf74C8/edit?slide=id.g3dc2aa84162_0_73#slide=id.g3dc2aa84162_0_73" target="_blank" rel="noopener noreferrer">
+        https://docs.google.com/presentation/d/1M7LG8voJIa6_lTd7aNmjt0dCc2EUJaOYCY2ukDf74C8/edit?slide=id.g3dc2aa84162_0_73#slide=id.g3dc2aa84162_0_73
+      </a>
+    </p>
+    <p><strong style="color:var(--text)">Final Video:</strong> [TBD - add showcase clip/GIF/video link]</p>
+    <div class="image-row">
+      <div class="placeholder">PLACEHOLDER<br/>embedded GIF/clip frame 1</div>
+      <div class="placeholder">PLACEHOLDER<br/>embedded GIF/clip frame 2</div>
+      <div class="placeholder">PLACEHOLDER<br/>embedded GIF/clip frame 3</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>References</h2>
+
+    <div class="paper-ref">
+      <div class="paper-title">Müller, Kim, Chentanez - Fast Simulation of Inextensible Hair and Fur</div>
+      <a href="https://matthias-research.github.io/pages/publications/FTLHairFur.pdf" target="_blank" rel="noopener noreferrer">https://matthias-research.github.io/pages/publications/FTLHairFur.pdf</a>
+      <div class="paper-desc">Primary reference for fast inextensible strand simulation and approximate interaction terms.</div>
+    </div>
+
+    <div class="paper-ref">
+      <div class="paper-title">Müller, Hennix, Ratcliff - Position Based Dynamics</div>
+      <a href="https://matthias-research.github.io/pages/publications/posBasedDyn.pdf" target="_blank" rel="noopener noreferrer">https://matthias-research.github.io/pages/publications/posBasedDyn.pdf</a>
+      <div class="paper-desc">Constraint projection framework that informed our stability-first solver structure.</div>
+    </div>
+
+    <div class="paper-ref">
+      <div class="paper-title">Ward et al. - A Survey on Hair Modeling: Styling, Simulation, and Rendering</div>
+      <a href="https://gamma.cs.unc.edu/HAIRSURVEY/latest.pdf" target="_blank" rel="noopener noreferrer">https://gamma.cs.unc.edu/HAIRSURVEY/latest.pdf</a>
+      <div class="paper-desc">Broad reference for simulation and rendering design choices across real-time and offline methods.</div>
+    </div>
+
+    <div class="paper-ref">
+      <div class="paper-title">Petrovic, Henne, Anderson - Volumetric Methods for Simulation and Rendering of Hair</div>
+      <a href="https://www.semanticscholar.org/paper/Volumetric-Methods-for-Simulation-and-Rendering-of-Petrovic-Henne/8ba4778cc8b775d9940834a7328ce33637d8bafd" target="_blank" rel="noopener noreferrer">https://www.semanticscholar.org/paper/Volumetric-Methods-for-Simulation-and-Rendering-of-Petrovic-Henne/8ba4778cc8b775d9940834a7328ce33637d8bafd</a>
+      <div class="paper-desc">Useful background for density/volume-oriented approximations.</div>
+    </div>
+
+    <div class="paper-ref">
+      <div class="paper-title">Velho - Realtime Hair Simulation and Rendering (Slides)</div>
+      <a href="https://w3.impa.br/~lvelho/i3d17/demos/Hair.pdf" target="_blank" rel="noopener noreferrer">https://w3.impa.br/~lvelho/i3d17/demos/Hair.pdf</a>
+      <div class="paper-desc">Visual and conceptual reference for interactive hair rendering approaches.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Models</div>
+      <ul>
+        <li>2 Human Head Basemeshes (OpenGameArt): https://opengameart.org/content/2-human-head-basemeshes</li>
+        <li>Generic Rabbit .obj (OpenGameArt): https://opengameart.org/content/generic-rabbit-obj</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Contributions</h2>
+    <div class="card">
+      <ul>
+        <li><strong style="color:var(--text)">Roshan Parekh:</strong> Hair/fur rendering updates, shader/look-dev tuning, result visualization support.</li>
+        <li><strong style="color:var(--text)">Yash Kodali:</strong> FTL/DFTL simulation implementation, GUI/runtime mode controls, integration and writeup support.</li>
+        <li><strong style="color:var(--text)">Spencer Nelson:</strong> CUDA kernel implementation and GPU performance optimization.</li>
+        <li><strong style="color:var(--text)">Hetvi Patel:</strong> Circular wind interaction, model rendering setup, documentation/writeup contributions.</li>
+      </ul>
     </div>
   </section>
 </div>

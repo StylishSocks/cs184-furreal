@@ -88,7 +88,7 @@ h1 span { color: var(--accent); }
 
 .container { max-width: 900px; margin: 0 auto; padding: 0 40px; }
 
-section { padding: 60px 0; border-bottom: 1px solid var(--border); }
+section { padding: 12px 0; }
 section:last-child { border-bottom: none; }
 
 h2 {
